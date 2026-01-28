@@ -10,7 +10,8 @@ pipeline {
     stage('Checkout') {
       steps {
         git branch: 'main',
-            url: 'git@github.com:RahulWakde/EKS-terraform-nginx.git'
+            url: 'git@github.com:RahulWakde/EKS-terraform-nginx.git',
+            credentialsId: 'github-ssh'
       }
     }
 
@@ -22,7 +23,13 @@ pipeline {
 
     stage('Terraform Apply') {
       steps {
-        sh 'terraform apply -auto-approve'
+        withCredentials([usernamePassword(
+          credentialsId: 'aws-creds',
+          usernameVariable: 'AWS_ACCESS_KEY_ID',
+          passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+        )]) {
+          sh 'terraform apply -auto-approve'
+        }
       }
     }
 
